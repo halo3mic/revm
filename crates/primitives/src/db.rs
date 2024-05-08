@@ -10,7 +10,7 @@ pub use components::{
 #[auto_impl(&mut, Box)]
 pub trait Database {
     /// The database error type.
-    type Error;
+    type Error: Send + Sync;
 
     /// Get basic account information.
     fn basic(&mut self, address: Address) -> Result<Option<AccountInfo>, Self::Error>;
@@ -73,7 +73,9 @@ where
 {
 }
 
-impl<T: DatabaseRef> Database for WrapDatabaseRef<T> {
+impl<T> Database for WrapDatabaseRef<T> 
+    where T: DatabaseRef, T::Error: Sync + Send
+{
     type Error = T::Error;
 
     #[inline]
@@ -120,7 +122,7 @@ impl<'a, E> RefDBWrapper<'a, E> {
 }
 
 #[allow(deprecated)]
-impl<'a, E> Database for RefDBWrapper<'a, E> {
+impl<'a, E: Sync + Send> Database for RefDBWrapper<'a, E> {
     type Error = E;
 
     #[inline]

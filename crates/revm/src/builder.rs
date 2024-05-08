@@ -74,7 +74,9 @@ impl<'a, EXT, DB: Database> EvmBuilder<'a, SetGenericStage, EXT, DB> {
     pub fn with_ref_db<ODB: DatabaseRef>(
         self,
         db: ODB,
-    ) -> EvmBuilder<'a, SetGenericStage, EXT, WrapDatabaseRef<ODB>> {
+    ) -> EvmBuilder<'a, SetGenericStage, EXT, WrapDatabaseRef<ODB>> 
+        where ODB::Error: Send + Sync
+    {
         EvmBuilder {
             context: Context::new(
                 self.context.evm.with_db(WrapDatabaseRef(db)),
@@ -238,7 +240,9 @@ impl<'a, EXT, DB: Database> EvmBuilder<'a, HandlerStage, EXT, DB> {
     pub fn reset_handler_with_ref_db<ODB: DatabaseRef>(
         self,
         db: ODB,
-    ) -> EvmBuilder<'a, SetGenericStage, EXT, WrapDatabaseRef<ODB>> {
+    ) -> EvmBuilder<'a, SetGenericStage, EXT, WrapDatabaseRef<ODB>> 
+        where ODB::Error: Send + Sync
+    {
         EvmBuilder {
             context: Context::new(
                 self.context.evm.with_db(WrapDatabaseRef(db)),

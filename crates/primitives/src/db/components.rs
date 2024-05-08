@@ -24,7 +24,9 @@ pub enum DatabaseComponentError<SE, BHE> {
     BlockHash(BHE),
 }
 
-impl<S: State, BH: BlockHash> Database for DatabaseComponents<S, BH> {
+impl<S: State, BH: BlockHash> Database for DatabaseComponents<S, BH> 
+    where S::Error: Send + Sync, BH::Error: Send + Sync
+{
     type Error = DatabaseComponentError<S::Error, BH::Error>;
 
     fn basic(&mut self, address: Address) -> Result<Option<AccountInfo>, Self::Error> {

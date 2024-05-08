@@ -165,7 +165,9 @@ impl<ExtDB> DatabaseCommit for CacheDB<ExtDB> {
     }
 }
 
-impl<ExtDB: DatabaseRef> Database for CacheDB<ExtDB> {
+impl<ExtDB: DatabaseRef> Database for CacheDB<ExtDB> 
+    where ExtDB::Error: Send + Sync
+{
     type Error = ExtDB::Error;
 
     fn basic(&mut self, address: Address) -> Result<Option<AccountInfo>, Self::Error> {

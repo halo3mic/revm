@@ -137,7 +137,7 @@ impl Output {
 /// Main EVM error.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum EVMError<DBError> {
+pub enum EVMError<DBError: Send + Sync> {
     /// Transaction validation error.
     Transaction(InvalidTransaction),
     /// Header validation error.
@@ -150,8 +150,17 @@ pub enum EVMError<DBError> {
     Custom(String),
 }
 
+// fn assert_send_sync<DBError>() {
+//     fn is_send<T: Send>() {}
+//     fn is_sync<T: Sync>() {}
+
+//     // These lines will fail to compile if MyStruct is not Send or Sync
+//     is_send::<EVMError<DBError>>();
+//     is_sync::<EVMError<DBError>>();
+// }
+
 #[cfg(feature = "std")]
-impl<DBError: std::error::Error + 'static> std::error::Error for EVMError<DBError> {
+impl<DBError: std::error::Error + 'static + Send + Sync> std::error::Error for EVMError<DBError> {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Transaction(e) => Some(e),
@@ -162,7 +171,7 @@ impl<DBError: std::error::Error + 'static> std::error::Error for EVMError<DBErro
     }
 }
 
-impl<DBError: fmt::Display> fmt::Display for EVMError<DBError> {
+impl<DBError: fmt::Display + Send + Sync> fmt::Display for EVMError<DBError> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Transaction(e) => write!(f, "transaction validation error: {e}"),
@@ -173,13 +182,13 @@ impl<DBError: fmt::Display> fmt::Display for EVMError<DBError> {
     }
 }
 
-impl<DBError> From<InvalidTransaction> for EVMError<DBError> {
+impl<DBError: Send + Sync> From<InvalidTransaction> for EVMError<DBError> {
     fn from(value: InvalidTransaction) -> Self {
         Self::Transaction(value)
     }
 }
 
-impl<DBError> From<InvalidHeader> for EVMError<DBError> {
+impl<DBError: Send + Sync> From<InvalidHeader> for EVMError<DBError> {
     fn from(value: InvalidHeader) -> Self {
         Self::Header(value)
     }

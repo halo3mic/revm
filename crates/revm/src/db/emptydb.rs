@@ -59,7 +59,7 @@ impl<E> EmptyDBTyped<E> {
     }
 }
 
-impl<E> Database for EmptyDBTyped<E> {
+impl<E: Send + Sync> Database for EmptyDBTyped<E> {
     type Error = E;
 
     #[inline]

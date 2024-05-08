@@ -79,7 +79,9 @@ impl<DB: Database> StateBuilder<DB> {
     pub fn with_database_ref<ODB: DatabaseRef>(
         self,
         database: ODB,
-    ) -> StateBuilder<WrapDatabaseRef<ODB>> {
+    ) -> StateBuilder<WrapDatabaseRef<ODB>> 
+        where ODB::Error: Sync + Send
+    {
         self.with_database(WrapDatabaseRef(database))
     }
 
@@ -87,7 +89,9 @@ impl<DB: Database> StateBuilder<DB> {
     pub fn with_database_boxed<Error>(
         self,
         database: DBBox<'_, Error>,
-    ) -> StateBuilder<DBBox<'_, Error>> {
+    ) -> StateBuilder<DBBox<'_, Error>> 
+        where Error: Sync + Send
+    {
         self.with_database(database)
     }
 
